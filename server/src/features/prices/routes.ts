@@ -28,6 +28,27 @@ const decodeSelections = (value: unknown): Record<string, string> => {
   }
 };
 
+type CableSearch = {
+  awg: number;
+  ul: string;
+};
+
+function parseCablePartNumber(search: string): CableSearch | null {
+  // Normalize spaces, hyphens and underscores.
+  const normalized = search.toUpperCase().replace(/[\s_-]+/g, "");
+
+  const match = normalized.match(
+    /(?:^|[^0-9])([0-9]{1,2})UL([0-9]{3,6})(?![0-9])/,
+  );
+
+  if (!match) return null;
+
+  return {
+    awg: Number(match[1]),
+    ul: `UL${match[2]}`,
+  };
+}
+
 priceRouter.get(
   "/suppliers",
   requirePermission("prices:read"),
@@ -83,12 +104,40 @@ priceRouter.get(
       filters.push("category=?");
       params.push(input.category);
     }
+
     if (input.q) {
-      filters.push(
-        "(INSTR(LOWER(description),LOWER(?))>0 OR INSTR(LOWER(category),LOWER(?))>0 OR INSTR(LOWER(ul_code),LOWER(?))>0)",
-      );
-      params.push(input.q, input.q, input.q);
+      const cable = parseCablePartNumber(input.q);
+
+      if (cable) {
+        // Search AWG and UL together, against the same item.
+        // Matches "20AWG" or "20 AWG".
+        // Ignores color, prefix and supplier suffix.
+        filters.push(`
+      (
+        ul_code REGEXP ?
+        AND description REGEXP ?
+      )
+    `);
+
+        params.push(
+          // Exact UL code, including combined UL categories.
+          `(^|[^[:alnum:]])${cable.ul}([^[:alnum:]]|$)`,
+          `(^|[^[:digit:]])${cable.awg}[[:space:]]*AWG([^[:alnum:]]|$)`,
+        );
+      } else {
+        // Keep existing normal text search.
+        filters.push(`
+      (
+        INSTR(LOWER(description), LOWER(?)) > 0
+        OR INSTR(LOWER(category), LOWER(?)) > 0
+        OR INSTR(LOWER(ul_code), LOWER(?)) > 0
+      )
+    `);
+
+        params.push(input.q, input.q, input.q);
+      }
     }
+
     const where = filters.join(" AND ");
     const [totals] = await rows<RowDataPacket>(
       `SELECT COUNT(*) AS total FROM price_items WHERE ${where}`,

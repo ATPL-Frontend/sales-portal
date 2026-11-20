@@ -41,17 +41,17 @@ function NavItemLink({
   item: NavItem;
   onNavigate: () => void;
 }) {
-  const Icon = item.icon;
+  // const Icon = item.icon;
   return (
     <NavLink
       to={item.to}
       end={item.to === "/"}
       onClick={onNavigate}
       className={({ isActive }) =>
-        `flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-colors ${isActive ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`
+        `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-colors ${isActive ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`
       }
     >
-      <Icon size={18} strokeWidth={1.8} />
+      {/* <Icon size={18} strokeWidth={1.8} /> */}
       {item.label}
     </NavLink>
   );
@@ -85,9 +85,9 @@ export function AppShell() {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white px-2 py-4 transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex items-center justify-between px-3 pb-12">
+        <div className="flex items-center justify-between px-2 pb-8">
           <Brand />
           <button
             type="button"
@@ -99,7 +99,7 @@ export function AppShell() {
           </button>
         </div>
 
-        <nav aria-label="Main navigation" className="flex-1 space-y-7">
+        <nav aria-label="Main navigation" className="flex-1 space-y-6">
           <div className="space-y-1">
             <div className="mb-3 px-3.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
               Workspace
@@ -113,7 +113,7 @@ export function AppShell() {
                   type="button"
                   aria-expanded={priceOpen}
                   onClick={() => setPriceOpen((open) => !open)}
-                  className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-colors ${pathname.startsWith("/price-list") ? "text-slate-900" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`}
+                  className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors ${pathname.startsWith("/price-list") ? "text-slate-900" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`}
                 >
                   <ListFilter size={18} strokeWidth={1.8} />
                   <span className="flex-1 text-left">Price List</span>
@@ -139,7 +139,7 @@ export function AppShell() {
           </div>
           {user?.isSuperAdmin && (
             <div className="space-y-1">
-              <div className="mb-3 px-3.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <div className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                 Administration
               </div>
               {adminLinks.map((item) => (
@@ -156,11 +156,11 @@ export function AppShell() {
           />
           <button
             onClick={() => void signOut()}
-            className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            className="flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
           >
             <LogOut size={18} strokeWidth={1.8} /> Sign out
           </button>
-          <div className="flex items-center gap-3 px-3.5 pt-5">
+          <div className="flex items-center gap-3 px-3 pt-4">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
               {user?.fullName?.charAt(0).toUpperCase() || "A"}
             </div>
