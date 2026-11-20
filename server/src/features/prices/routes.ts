@@ -245,12 +245,10 @@ priceRouter.post(
     } finally {
       connection.release();
     }
-    res
-      .status(201)
-      .json({
-        message: "3F price list replaced",
-        importId: id,
-        count: parsed.lines.length,
-      });
+    res.status(201).json({
+      message: "3F price list replaced",
+      importId: id,
+      count: parsed.lines.length,
+    });
   },
 );

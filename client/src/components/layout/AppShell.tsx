@@ -15,8 +15,8 @@ import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { Brand } from "../ui/Brand";
-import { ThemeToggle } from "../ui/ThemeToggle";
 import { ScrollToTop } from "../ui/ScrollToTop";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 type NavItem = { to: string; label: string; icon: LucideIcon };
 const commonLinks: NavItem[] = [
