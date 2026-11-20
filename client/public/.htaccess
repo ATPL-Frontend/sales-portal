@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Leave the cPanel Node application at /api entirely to Passenger.
+  RewriteRule ^api(?:/|$) - [L]
+  # React Router client-side routes should load index.html.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>

@@ -1,0 +1,98 @@
+name: Build and deploy to cPanel (web + API)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Make concurrent pushes deploy in order; don't cancel a deploy mid-transfer.
+concurrency:
+  group: ampec-cpanel-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: "Production \u2013 atpl-dhaka"
+    timeout-minutes: 25
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build API and Vite client
+        run: npm run build
+
+      # Build a safe, minimal runtime payload. Never copy .env, src, or
+      # node_modules from the GitHub runner to the hosting account.
+      - name: Prepare compiled backend for cPanel
+        run: |
+          mkdir -p .deploy/api/dist .deploy/api/tmp
+          cp -R server/dist/. .deploy/api/dist/
+          cp server/app.js server/package.json .deploy/api/
+          date +%s > .deploy/api/tmp/restart.txt
+          test -f .deploy/api/app.js
+          test -f .deploy/api/dist/index.js
+          test -f client/dist/index.html
+          test -f client/dist/.htaccess
+          if find .deploy -type f -name '.env*' | grep -q .; then
+            echo 'Refusing to deploy environment files' >&2
+            exit 1
+          fi
+
+      # Your previous workflow's FTP account uses '/' as the site document
+      # root, and '/api/' as the cPanel application root. Override these
+      # paths using repository variables if the FTP account is rooted elsewhere.
+      - name: Upload Vite site to web root (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: client/dist/
+          server-dir: /
+          state-name: .web-ftp-deploy-state.json
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            api/**
+            .env
+            **/.env
+
+      - name: Upload compiled Node API to /api (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: .deploy/api/
+          server-dir: /api/
+          state-name: .api-ftp-deploy-state.json
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            **/.env
+            .htaccess

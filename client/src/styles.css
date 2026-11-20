@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* Tailwind CSS v4 theme tokens. Existing bg-slate-*, text-slate-*,
+   border-slate-* and bg-white classes adapt across the whole app. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-white: #FFFFFF;
+  --color-slate-50: #E8F6F4;
+  --color-slate-100: #D2E9E9;
+  --color-slate-200: #C4DFDF;
+  --color-slate-300: #C4DFDF;
+  --color-slate-400: #135D66;
+  --color-slate-500: #135D66;
+  --color-slate-600: #135D66;
+  --color-slate-700: #003C43;
+  --color-slate-800: #003C43;
+  --color-slate-900: #003C43;
+  --color-cyan-50: #E3F4F4;
+  --color-cyan-800: #003C43;
+}
+
+/* Theme-variable overrides; visual components remain Tailwind utilities. */
+@layer base {
+  html.dark {
+    --color-white: #0b2429;
+    --color-slate-50: #091e22;
+    --color-slate-100: #16343b;
+    --color-slate-200: #1c434b;
+    --color-slate-300: #267e8d;
+    --color-slate-400: #1b6166;
+    --color-slate-500: #7bada9;
+    --color-slate-600: #92b6af;
+    --color-slate-700: #77dbc4;
+    --color-slate-800: #20cfa1;
+    --color-slate-900: #bfdad4;
+
+    --color-cyan-50: #053e42;
+    --color-cyan-800: #6bddd2;
+  }
+}
