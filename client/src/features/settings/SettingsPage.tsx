@@ -86,7 +86,7 @@ export function SettingsPage() {
             Change password
           </h2>
           <p className="mt-1.5 text-sm text-slate-500">
-            Use at least 12 characters.
+            Use at least 8 characters.
           </p>
           <form onSubmit={submit} className="mt-7 space-y-4">
             <Field
@@ -103,7 +103,7 @@ export function SettingsPage() {
               label="New password"
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={8}
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               required
@@ -113,7 +113,7 @@ export function SettingsPage() {
               label="Confirm new password"
               type="password"
               autoComplete="new-password"
-              minLength={12}
+              minLength={8}
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               required

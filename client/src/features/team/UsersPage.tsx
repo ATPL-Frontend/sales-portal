@@ -263,9 +263,9 @@ export function UsersPage() {
                 <Field
                   id="member-password"
                   label="Temporary password"
-                  hint="Min. 12 characters"
+                  hint="Min. 8 characters"
                   type="password"
-                  minLength={12}
+                  minLength={8}
                   maxLength={128}
                   autoComplete="new-password"
                   required
