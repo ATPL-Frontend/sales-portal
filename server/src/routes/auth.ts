@@ -57,7 +57,7 @@ authRouter.post("/change-password", authenticate, async (req, res) => {
   const { currentPassword, newPassword } = z
     .object({
       currentPassword: z.string().min(1),
-      newPassword: z.string().min(12).max(128),
+      newPassword: z.string().min(8).max(128),
     })
     .parse(req.body);
   if (!(await bcrypt.compare(currentPassword, req.authUser!.password_hash)))
