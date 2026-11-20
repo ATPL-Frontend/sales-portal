@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p .deploy/api/dist .deploy/api/tmp
           cp -R server/dist/. .deploy/api/dist/
-          cp server/app.js server/package.json .deploy/api/
+          cp server/app.js server/app.cjs server/package.json .deploy/api/
           date +%s > .deploy/api/tmp/restart.txt
           test -f .deploy/api/app.js
           test -f .deploy/api/dist/index.js

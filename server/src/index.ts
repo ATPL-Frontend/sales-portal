@@ -21,6 +21,13 @@ app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 
 const api = express.Router();
+api.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "cable-price-api",
+    message: "Ampec Sales Portal API is running",
+  });
+});
 api.get("/health", async (_req, res) => {
   await db.query("SELECT 1");
   res.json({ status: "ok", service: "cable-price-api" });
