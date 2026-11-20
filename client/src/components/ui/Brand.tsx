@@ -1,10 +1,8 @@
-import { Cable } from "lucide-react";
-
 export function Brand() {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-10 items-center justify-center rounded-xl bg-slate-900 text-white">
-        <Cable size={20} strokeWidth={2.1} />
+      <span className="flex size-10 items-center justify-center text-white">
+        <img src="/logo.jpg" alt="Ampec logo" className="h-10 square" />
       </span>
       <span className="flex flex-col leading-tight">
         <span className="text-[15px] font-semibold tracking-[-0.02em] text-slate-900">

@@ -177,7 +177,7 @@ export function ThreeFPricePage() {
                 type="search"
                 value={query}
                 onChange={(e) => resetSearch(e.target.value, category)}
-                placeholder="Search AWG, description, UL…"
+                placeholder="Search part number, AWG, UL or description..."
                 aria-label="Search cable prices"
                 className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm outline-none placeholder:text-slate-400 focus:border-slate-400"
               />
