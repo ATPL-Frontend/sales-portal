@@ -1,23 +1,36 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
-import { AppShell } from '../components/layout/AppShell';
-import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
-import { LoginPage } from '../features/auth/LoginPage';
-import { DashboardPage } from '../features/dashboard/DashboardPage';
-import { UsersPage } from '../features/team/UsersPage';
-import { RolesPage } from '../features/team/RolesPage';
-import { SettingsPage } from '../features/settings/SettingsPage';
-import { ThreeFPricePage } from '../features/prices/ThreeFPricePage';
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+import { AppShell } from "../components/layout/AppShell";
+import { AuthProvider, useAuth } from "../features/auth/AuthProvider";
+import { LoginPage } from "../features/auth/LoginPage";
+import { DashboardPage } from "../features/dashboard/DashboardPage";
+import { ThreeFPricePage } from "../features/prices/ThreeFPricePage";
+import { SettingsPage } from "../features/settings/SettingsPage";
+import { RolesPage } from "../features/team/RolesPage";
+import { UsersPage } from "../features/team/UsersPage";
 
 function LoadingScreen() {
-  return <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">Loading workspace…</div>;
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+      Loading workspace…
+    </div>
+  );
 }
 
 function RequireAuth() {
   const { user, loading } = useAuth();
   const location = useLocation();
   if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  if (user.mustChangePassword && location.pathname !== '/settings') return <Navigate to="/settings" replace />;
+  if (!user)
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (user.mustChangePassword && location.pathname !== "/settings")
+    return <Navigate to="/settings" replace />;
   return <Outlet />;
 }
 
@@ -27,14 +40,22 @@ function RequireSuperAdmin() {
 }
 
 function RequirePriceRead() {
-  const {user}=useAuth();
-  return user?.isSuperAdmin||user?.permissions.includes('prices:read') ? <Outlet /> : <Navigate to="/" replace />;
+  const { user } = useAuth();
+  return user?.isSuperAdmin || user?.permissions.includes("prices:read") ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/" replace />
+  );
 }
 
 function PublicOnly() {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? <Navigate to={user.mustChangePassword ? '/settings' : '/'} replace /> : <Outlet />;
+  return user ? (
+    <Navigate to={user.mustChangePassword ? "/settings" : "/"} replace />
+  ) : (
+    <Outlet />
+  );
 }
 
 function AppRoutes() {
@@ -47,7 +68,9 @@ function AppRoutes() {
         <Route element={<AppShell />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route element={<RequirePriceRead />}><Route path="/price-list/3f" element={<ThreeFPricePage />} /></Route>
+          <Route element={<RequirePriceRead />}>
+            <Route path="/price-list/3f" element={<ThreeFPricePage />} />
+          </Route>
           <Route element={<RequireSuperAdmin />}>
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
@@ -60,5 +83,11 @@ function AppRoutes() {
 }
 
 export function App() {
-  return <BrowserRouter><AuthProvider><AppRoutes /></AuthProvider></BrowserRouter>;
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }

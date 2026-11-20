@@ -10,11 +10,13 @@
   <body>
     <script>
       try {
-        if (localStorage.getItem('ampec-sales-portal-theme') === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = 'dark';
+        if (localStorage.getItem("ampec-sales-portal-theme") === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
         }
-      } catch (_) { /* browser storage may be unavailable */ }
+      } catch (_) {
+        /* browser storage may be unavailable */
+      }
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

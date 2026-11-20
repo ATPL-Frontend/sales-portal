@@ -1,5 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { api, json, type SessionUser } from '../../lib/api';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { api, json, type SessionUser } from "../../lib/api";
 
 type AuthContextValue = {
   user: SessionUser | null;
@@ -17,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const response = await api<{ user: SessionUser }>('/auth/me');
+      const response = await api<{ user: SessionUser }>("/auth/me");
       setUser(response.user);
     } catch {
       setUser(null);
@@ -29,13 +36,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   async function login(email: string, password: string) {
-    const response = await api<{ user: SessionUser }>('/auth/login', json('POST', { email, password }));
+    const response = await api<{ user: SessionUser }>(
+      "/auth/login",
+      json("POST", { email, password }),
+    );
     setUser(response.user);
   }
 
   async function logout() {
     try {
-      await api('/auth/logout', { method: 'POST' });
+      await api("/auth/logout", { method: "POST" });
     } finally {
       setUser(null);
     }
@@ -50,6 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used inside AuthProvider');
+  if (!context) throw new Error("useAuth must be used inside AuthProvider");
   return context;
 }
