@@ -16,12 +16,11 @@ import { UsersPage } from "../features/team/UsersPage";
 import { ThreeFPricePage } from "../features/prices/3f/ThreeFPricePage";
 import { AksPricePage } from "../features/prices/aks/AksPricePage";
 import { ProfilePage } from "../features/account/ProfilePage";
+import { AuthLoader } from "../components/ui/AuthLoader";
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
-      Loading workspace…
-    </div>
+    <AuthLoader />
   );
 }
 
