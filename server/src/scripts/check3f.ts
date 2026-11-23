@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { parsePriceWorkbook } from "../features/prices/workbook.js";
+import { parsePriceWorkbook } from "../features/price/workbook.js";
 
 const file = process.argv[2];
 if (!file) {

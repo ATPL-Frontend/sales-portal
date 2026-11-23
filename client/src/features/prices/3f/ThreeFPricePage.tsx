@@ -1,11 +1,11 @@
 import { FileSpreadsheet, LoaderCircle, Search, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../components/ui/Button";
-import { Notice } from "../../components/ui/Notice";
-import { PageHeader } from "../../components/ui/PageHeader";
-import { useToast } from "../../components/ui/ToastProvider";
-import { api } from "../../lib/api";
-import { useAuth } from "../auth/AuthProvider";
+import { Button } from "../../../components/ui/Button";
+import { Notice } from "../../../components/ui/Notice";
+import { PageHeader } from "../../../components/ui/PageHeader";
+import { useToast } from "../../../components/ui/ToastProvider";
+import { api } from "../../../lib/api";
+import { useAuth } from "../../auth/AuthProvider";
 import { Import3FDialog } from "./Import3FDialog";
 import type { PriceMeta, PricePage } from "./types";
 

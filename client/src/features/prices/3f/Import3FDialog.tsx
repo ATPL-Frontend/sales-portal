@@ -7,10 +7,10 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { Button } from "../../components/ui/Button";
-import { Dialog } from "../../components/ui/Dialog";
-import { Notice } from "../../components/ui/Notice";
-import { uploadApi } from "../../lib/api";
+import { Button } from "../../../components/ui/Button";
+import { Dialog } from "../../../components/ui/Dialog";
+import { Notice } from "../../../components/ui/Notice";
+import { uploadApi } from "../../../lib/api";
 import type { ImportPreview } from "./types";
 
 export function Import3FDialog({

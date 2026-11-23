@@ -2,6 +2,7 @@ export interface SessionUser {
   id: number;
   fullName: string;
   email: string;
+  avatarUrl?: string | null;
   active: boolean;
   mustChangePassword: boolean;
   roles: string[];

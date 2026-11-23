@@ -93,3 +93,41 @@ CREATE TABLE IF NOT EXISTS price_items (
   INDEX idx_price_ul (import_id, ul_code),
   FULLTEXT INDEX ft_price_description (description)
 );
+
+-- AKS quotations use different columns from 3F Excel, so they have a separate
+-- supplier-specific table. Safe to run through phpMyAdmin on an existing portal.
+INSERT INTO price_suppliers (code, display_name)
+VALUES ('aks', 'AKS Distributions')
+ON DUPLICATE KEY UPDATE display_name = VALUES(display_name);
+
+CREATE TABLE IF NOT EXISTS aks_imports (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  files_json JSON NOT NULL,
+  file_count INT UNSIGNED NOT NULL,
+  item_count INT UNSIGNED NOT NULL,
+  imported_by BIGINT UNSIGNED NULL,
+  imported_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_aks_import_user FOREIGN KEY (imported_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS aks_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  import_id BIGINT UNSIGNED NOT NULL,
+  part_no VARCHAR(100) NOT NULL,
+  description TEXT NOT NULL,
+  price DECIMAL(14,2) NOT NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'AUD',
+  uom VARCHAR(60) NOT NULL,
+  moq VARCHAR(60) NOT NULL,
+  quote_ref VARCHAR(80) DEFAULT NULL,
+  quote_date DATE DEFAULT NULL,
+  valid_until DATE DEFAULT NULL,
+  source_file VARCHAR(255) NOT NULL,
+  source_page INT UNSIGNED NOT NULL,
+  source_row INT UNSIGNED NOT NULL,
+  CONSTRAINT fk_aks_item_import FOREIGN KEY (import_id) REFERENCES aks_imports(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_aks_import_part (import_id, part_no),
+  INDEX ix_aks_part (part_no),
+  INDEX ix_aks_source (import_id, source_file),
+  FULLTEXT INDEX ft_aks_description (description)
+);

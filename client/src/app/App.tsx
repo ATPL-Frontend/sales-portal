@@ -10,10 +10,12 @@ import { AppShell } from "../components/layout/AppShell";
 import { AuthProvider, useAuth } from "../features/auth/AuthProvider";
 import { LoginPage } from "../features/auth/LoginPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
-import { ThreeFPricePage } from "../features/prices/ThreeFPricePage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { RolesPage } from "../features/team/RolesPage";
 import { UsersPage } from "../features/team/UsersPage";
+import { ThreeFPricePage } from "../features/prices/3f/ThreeFPricePage";
+import { AksPricePage } from "../features/prices/aks/AksPricePage";
+import { ProfilePage } from "../features/account/ProfilePage";
 
 function LoadingScreen() {
   return (
@@ -70,11 +72,13 @@ function AppRoutes() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route element={<RequirePriceRead />}>
             <Route path="/price-list/3f" element={<ThreeFPricePage />} />
+            <Route path="/price-list/aks" element={<AksPricePage />} />
           </Route>
           <Route element={<RequireSuperAdmin />}>
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
           </Route>
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
