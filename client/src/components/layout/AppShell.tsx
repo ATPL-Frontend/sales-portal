@@ -3,7 +3,6 @@ import {
   ChevronRight,
   LayoutGrid,
   ListFilter,
-  LogOut,
   Menu,
   Settings,
   Shield,
@@ -12,11 +11,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { Brand } from "../ui/Brand";
 import { ScrollToTop } from "../ui/ScrollToTop";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { AccountMenu } from "./AccountMenu";
 
 type NavItem = { to: string; label: string; icon: LucideIcon };
 const commonLinks: NavItem[] = [
@@ -28,10 +28,12 @@ const adminLinks: NavItem[] = [
 ];
 const pageNames: Record<string, string> = {
   "/price-list/3f": "3F Cable Prices",
+  "/price-list/aks": "AKS Cable Prices",
   "/": "Overview",
   "/users": "Team members",
   "/roles": "Roles & access",
   "/settings": "Settings",
+  "/profile": "My Profile",
 };
 
 function NavItemLink({
@@ -58,8 +60,7 @@ function NavItemLink({
 }
 
 export function AppShell() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(
@@ -69,11 +70,6 @@ export function AppShell() {
     user?.isSuperAdmin || user?.permissions.includes("prices:read"),
   );
   const closeMenu = () => setMobileOpen(false);
-
-  async function signOut() {
-    await logout();
-    navigate("/login", { replace: true });
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 lg:flex">
@@ -132,6 +128,14 @@ export function AppShell() {
                       }}
                       onNavigate={closeMenu}
                     />
+                    <NavItemLink
+                      item={{
+                        to: "/price-list/aks",
+                        label: "AKS Cable Prices",
+                        icon: ChevronRight,
+                      }}
+                      onNavigate={closeMenu}
+                    />
                   </div>
                 )}
               </div>
@@ -154,25 +158,6 @@ export function AppShell() {
             item={{ to: "/settings", label: "Settings", icon: Settings }}
             onNavigate={closeMenu}
           />
-          <button
-            onClick={() => void signOut()}
-            className="flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <LogOut size={18} strokeWidth={1.8} /> Sign out
-          </button>
-          <div className="flex items-center gap-3 px-3 pt-4">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
-              {user?.fullName?.charAt(0).toUpperCase() || "A"}
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-xs font-semibold text-slate-800">
-                {user?.fullName}
-              </div>
-              <div className="truncate text-[11px] text-slate-400">
-                {user?.email}
-              </div>
-            </div>
-          </div>
         </div>
       </aside>
 
@@ -192,11 +177,15 @@ export function AppShell() {
               {pageNames[pathname] || "Workspace"}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
+
+            <div className="h-6 w-px bg-slate-200" />
+
+            <AccountMenu />
           </div>
         </header>
-        <main className="w-full max-w-7xl flex-1 self-center p-4 sm:p-6">
+        <main className="w-full flex-1 self-center p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
