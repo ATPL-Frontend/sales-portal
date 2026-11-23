@@ -16,6 +16,7 @@ import { authRouter } from "./routes/auth.js";
 // Supplier price list routes
 import { priceRouter } from "./features/price/routes.js";
 import { aksRouter } from "./features/prices/aks/routes.js";
+import { cabacRouter } from './features/prices/cabac/routes.js';
 
 const app = express();
 
@@ -64,6 +65,9 @@ api.use("/admin", adminRouter);
 
 // AKS price list
 api.use("/price-lists/aks", aksRouter);
+
+// CABAC price list
+api.use('/price-lists/cabac', cabacRouter);
 
 // 3F price list
 api.use("/price-lists", priceRouter);

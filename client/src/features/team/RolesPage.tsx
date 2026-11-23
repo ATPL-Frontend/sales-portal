@@ -1,4 +1,4 @@
-import { Lock, Plus, Shield } from "lucide-react";
+import { Lock, Plus, Shield, Trash2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
@@ -13,6 +13,8 @@ export function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Role | null>(null);
+  const [deleting, setDeleting] = useState<Role | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
@@ -83,6 +85,22 @@ export function RolesPage() {
     }
   }
 
+  async function confirmDelete() {
+    if (!deleting || deleteBusy) return;
+    setDeleteBusy(true);
+    setError("");
+    try {
+      await api(`/admin/roles/${deleting.id}`, { method: "DELETE" });
+      setDeleting(null);
+      await load();
+    } catch (err) {
+      setError((err as Error).message);
+      setDeleting(null);
+    } finally {
+      setDeleteBusy(false);
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -143,6 +161,15 @@ export function RolesPage() {
                     Manage
                   </Button>
                 )}
+                {!role.system && role.name !== "super_admin" && (
+                  <button
+                    type="button"
+                    onClick={() => setDeleting(role)}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={15} /> Delete
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -152,6 +179,42 @@ export function RolesPage() {
           </div>
         )}
       </section>
+      {deleting && (
+        <Dialog
+          title="Delete role?"
+          description="This action removes the role and its permissions permanently."
+          onClose={() => {
+            if (!deleteBusy) setDeleting(null);
+          }}
+        >
+          <p className="mb-6 text-sm text-slate-700">
+            Delete{" "}
+            <strong className="capitalize">
+              {deleting.name.replaceAll("_", " ")}
+            </strong>
+            ? Roles currently assigned to users cannot be deleted. Reassign
+            those users first.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              type="button"
+              disabled={deleteBusy}
+              onClick={() => setDeleting(null)}
+            >
+              Cancel
+            </Button>
+            <button
+              type="button"
+              disabled={deleteBusy}
+              onClick={() => void confirmDelete()}
+              className="min-h-11 rounded-xl bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleteBusy ? "Deleting…" : "Delete role"}
+            </button>
+          </div>
+        </Dialog>
+      )}
       {modalOpen && (
         <Dialog
           title={editing ? "Manage permissions" : "Create role"}

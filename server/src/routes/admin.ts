@@ -266,6 +266,87 @@ adminRouter.put("/roles/:id/permissions", async (req, res) => {
   await audit(req.authUser!.id, "role.permissions_updated", "role", String(id));
   res.json({ message: "Permissions updated" });
 });
+// Permanently delete a non-admin user. Existing Active/Inactive controls are unchanged.
+adminRouter.delete("/users/:id", async (req, res) => {
+  const id = numericId.parse(req.params.id);
+  if (id === req.authUser!.id)
+    throw new HttpError(403, "You cannot delete your own account");
+
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [users] = await conn.execute<RowDataPacket[]>(
+      "SELECT id FROM users WHERE id=? FOR UPDATE",
+      [id],
+    );
+    if (!users.length) throw new HttpError(404, "User not found");
+
+    const [protectedRoles] = await conn.execute<RowDataPacket[]>(
+      `SELECT r.id FROM user_roles ur JOIN roles r ON r.id=ur.role_id
+       WHERE ur.user_id=? AND r.name='super_admin' LIMIT 1`,
+      [id],
+    );
+    if (protectedRoles.length)
+      throw new HttpError(403, "Super admin accounts cannot be deleted");
+
+    await conn.execute("DELETE FROM users WHERE id=?", [id]);
+    await conn.execute(
+      "INSERT INTO audit_logs (actor_user_id,action,target_type,target_id) VALUES (?,?,?,?)",
+      [req.authUser!.id, "user.deleted", "user", String(id)],
+    );
+    await conn.commit();
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+  res.json({ message: "User deleted permanently" });
+});
+
+// Delete an unassigned custom role. Built-in roles remain protected.
+adminRouter.delete("/roles/:id", async (req, res) => {
+  const id = numericId.parse(req.params.id);
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+    const [roles] = await conn.execute<RowDataPacket[]>(
+      "SELECT id,name,is_system FROM roles WHERE id=? FOR UPDATE",
+      [id],
+    );
+    const role = roles[0];
+    if (!role) throw new HttpError(404, "Role not found");
+    if (role.name === "super_admin" || role.is_system) {
+      throw new HttpError(403, "Built-in roles cannot be deleted");
+    }
+
+    const [assigned] = await conn.execute<RowDataPacket[]>(
+      "SELECT user_id FROM user_roles WHERE role_id=? LIMIT 1",
+      [id],
+    );
+    if (assigned.length) {
+      throw new HttpError(
+        409,
+        "Role is assigned to users. Reassign those users first",
+      );
+    }
+
+    // Role permissions are removed automatically by the foreign-key cascade.
+    await conn.execute("DELETE FROM roles WHERE id=?", [id]);
+    await conn.execute(
+      "INSERT INTO audit_logs (actor_user_id,action,target_type,target_id) VALUES (?,?,?,?)",
+      [req.authUser!.id, "role.deleted", "role", String(id)],
+    );
+    await conn.commit();
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+  res.json({ message: "Role deleted permanently" });
+});
+
 adminRouter.get("/activity", async (_req, res) => {
   const events =
     await rows<RowDataPacket>(`SELECT a.id, a.action, a.target_type, a.target_id, a.created_at, u.full_name AS actor

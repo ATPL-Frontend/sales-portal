@@ -1,4 +1,4 @@
-import { Pencil, Plus, Search, Users } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, Users } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "../../components/ui/Button";
 import { Dialog } from "../../components/ui/Dialog";
@@ -6,13 +6,17 @@ import { Field, inputClass } from "../../components/ui/Field";
 import { Notice } from "../../components/ui/Notice";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { api, json, type Role, type StaffUser } from "../../lib/api";
+import { useAuth } from "../auth/AuthProvider";
 
 export function UsersPage() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<StaffUser | null>(null);
+  const [deleting, setDeleting] = useState<StaffUser | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -91,6 +95,21 @@ export function UsersPage() {
       setFormError((err as Error).message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleting || deleteBusy) return;
+    setDeleteBusy(true);
+    setError("");
+    try {
+      await api(`/admin/users/${deleting.id}`, { method: "DELETE" });
+      setDeleting(null);
+      await load();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setDeleteBusy(false);
     }
   }
 
@@ -211,15 +230,25 @@ export function UsersPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-right sm:px-7">
-                      {!member.roles.includes("super_admin") && (
-                        <button
-                          type="button"
-                          onClick={() => openEdit(member)}
-                          className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900"
-                        >
-                          <Pencil size={13} /> Edit
-                        </button>
-                      )}
+                      {!member.roles.includes("super_admin") &&
+                        member.id !== currentUser?.id && (
+                          <div className="flex items-center justify-end gap-4">
+                            <button
+                              type="button"
+                              onClick={() => openEdit(member)}
+                              className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900"
+                            >
+                              <Pencil size={13} /> Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleting(member)}
+                              className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 size={13} /> Delete
+                            </button>
+                          </div>
+                        )}
                     </td>
                   </tr>
                 ))}
@@ -227,6 +256,44 @@ export function UsersPage() {
           </table>
         </div>
       </section>
+      {deleting && (
+        <Dialog
+          title="Delete team member?"
+          description="This action permanently deletes the account and cannot be undone."
+          onClose={() => {
+            if (!deleteBusy) setDeleting(null);
+          }}
+        >
+          <p className="mb-5 text-sm text-slate-700">
+            Delete <strong>{deleting.fullName}</strong> ({deleting.email})? The
+            existing Active/Inactive setting is not affected for other users.
+          </p>
+          {deleting.active && (
+            <p className="mb-5 text-sm text-amber-700">
+              This account is active. If you only want to stop access, use Edit
+              → Account active instead.
+            </p>
+          )}
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              type="button"
+              disabled={deleteBusy}
+              onClick={() => setDeleting(null)}
+            >
+              Cancel
+            </Button>
+            <button
+              type="button"
+              disabled={deleteBusy}
+              onClick={() => void confirmDelete()}
+              className="min-h-11 rounded-xl bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {deleteBusy ? "Deleting…" : "Delete permanently"}
+            </button>
+          </div>
+        </Dialog>
+      )}
       {modalOpen && (
         <Dialog
           title={editing ? "Edit member" : "Add team member"}

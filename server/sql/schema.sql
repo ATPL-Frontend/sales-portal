@@ -131,3 +131,38 @@ CREATE TABLE IF NOT EXISTS aks_items (
   INDEX ix_aks_source (import_id, source_file),
   FULLTEXT INDEX ft_aks_description (description)
 );
+
+-- Run once in phpMyAdmin against the existing Sales Portal database.
+-- Only CABAC tables are created; existing 3F and AKS rows are not changed.
+INSERT INTO price_suppliers (code, display_name)
+VALUES ('cabac', 'CABAC')
+ON DUPLICATE KEY UPDATE display_name = VALUES(display_name);
+
+CREATE TABLE IF NOT EXISTS cabac_imports (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  supplier_code VARCHAR(40) NOT NULL DEFAULT 'cabac',
+  filename VARCHAR(255) NOT NULL,
+  item_count INT UNSIGNED NOT NULL,
+  imported_by BIGINT UNSIGNED NULL,
+  imported_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cabac_import_supplier FOREIGN KEY (supplier_code) REFERENCES price_suppliers(code),
+  CONSTRAINT fk_cabac_import_user FOREIGN KEY (imported_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS cabac_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  import_id BIGINT UNSIGNED NOT NULL,
+  item_code VARCHAR(100) NOT NULL,
+  item_description TEXT NOT NULL,
+  quantity DECIMAL(16,3) NOT NULL,
+  quantity_per DECIMAL(16,3) NOT NULL,
+  unit VARCHAR(40) NOT NULL,
+  offer_price DECIMAL(20,6) NOT NULL,
+  currency CHAR(3) NOT NULL,
+  sheet_name VARCHAR(128) NOT NULL,
+  source_row INT UNSIGNED NOT NULL,
+  CONSTRAINT fk_cabac_item_import FOREIGN KEY (import_id) REFERENCES cabac_imports(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_cabac_sheet_row (import_id, sheet_name, source_row),
+  INDEX ix_cabac_import_code (import_id, item_code),
+  FULLTEXT INDEX ft_cabac_description (item_description)
+);
