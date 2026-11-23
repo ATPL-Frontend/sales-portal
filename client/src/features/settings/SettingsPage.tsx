@@ -4,6 +4,7 @@ import { Field } from "../../components/ui/Field";
 import { Notice } from "../../components/ui/Notice";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { api, json } from "../../lib/api";
+import { ProfileNameEditor } from "../account/ProfileNameEditor";
 import { useAuth } from "../auth/AuthProvider";
 
 export function SettingsPage() {
@@ -59,12 +60,7 @@ export function SettingsPage() {
         <section className="self-start rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
           <h2 className="text-base font-semibold text-slate-900">Profile</h2>
           <div className="mt-8 space-y-6">
-            <div>
-              <p className="text-xs text-slate-400">Full name</p>
-              <p className="mt-1.5 text-sm font-medium text-slate-800">
-                {user?.fullName}
-              </p>
-            </div>
+            <ProfileNameEditor />
             <div>
               <p className="text-xs text-slate-400">Email</p>
               <p className="mt-1.5 break-all text-sm font-medium text-slate-800">

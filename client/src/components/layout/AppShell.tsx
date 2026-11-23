@@ -29,6 +29,7 @@ const adminLinks: NavItem[] = [
 const pageNames: Record<string, string> = {
   "/price-list/3f": "3F Cable Prices",
   "/price-list/aks": "AKS Cable Prices",
+  '/price-list/cabac': 'CABAC Price List',
   "/": "Overview",
   "/users": "Team members",
   "/roles": "Roles & access",
@@ -81,9 +82,9 @@ export function AppShell() {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white px-2 py-4 transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white px-2 py-2 transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex items-center justify-between px-2 pb-8">
+        <div className="flex items-center justify-between px-2 pb-8 pt-2">
           <Brand />
           <button
             type="button"
@@ -136,6 +137,14 @@ export function AppShell() {
                       }}
                       onNavigate={closeMenu}
                     />
+                    <NavItemLink
+                      item={{
+                        to: "/price-list/cabac",
+                        label: "CABAC",
+                        icon: ChevronRight,
+                      }}
+                      onNavigate={closeMenu}
+                    />
                   </div>
                 )}
               </div>
@@ -153,7 +162,7 @@ export function AppShell() {
           )}
         </nav>
 
-        <div className="space-y-1 border-t border-slate-100 pt-4">
+        <div className="space-y-1 border-t border-slate-100">
           <NavItemLink
             item={{ to: "/settings", label: "Settings", icon: Settings }}
             onNavigate={closeMenu}

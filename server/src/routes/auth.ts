@@ -7,7 +7,7 @@ import { db } from "../config/db.js";
 import { env } from "../config/env.js";
 import { authenticate } from "../middleware/auth.js";
 import { audit } from "../services/audit.js";
-import { getByEmail, publicUser } from "../services/users.js";
+import { getByEmail, getUser, publicUser } from "../services/users.js";
 import { HttpError } from "../utils/errors.js";
 export const authRouter = Router();
 const secureCookie = {
@@ -52,6 +52,31 @@ authRouter.post("/logout", (_req, res) => {
 });
 authRouter.get("/me", authenticate, async (req, res) => {
   res.json({ user: await publicUser(req.authUser!) });
+});
+// The authenticated user can update their own display name.
+authRouter.patch("/profile", authenticate, async (req, res) => {
+  const { fullName } = z
+    .object({
+      fullName: z.string().trim().min(2).max(140),
+    })
+    .parse(req.body);
+
+  await db.execute("UPDATE users SET full_name=? WHERE id=?", [
+    fullName,
+    req.authUser!.id,
+  ]);
+  await audit(
+    req.authUser!.id,
+    "user.profile_updated",
+    "user",
+    String(req.authUser!.id),
+    {
+      fields: ["fullName"],
+    },
+  );
+  const user = await getUser(req.authUser!.id);
+  if (!user) throw new HttpError(404, "Account not found");
+  res.json({ message: "Name updated", user: await publicUser(user) });
 });
 authRouter.post("/change-password", authenticate, async (req, res) => {
   const { currentPassword, newPassword } = z
