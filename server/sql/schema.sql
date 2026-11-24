@@ -94,8 +94,6 @@ CREATE TABLE IF NOT EXISTS price_items (
   FULLTEXT INDEX ft_price_description (description)
 );
 
--- AKS quotations use different columns from 3F Excel, so they have a separate
--- supplier-specific table. Safe to run through phpMyAdmin on an existing portal.
 INSERT INTO price_suppliers (code, display_name)
 VALUES ('aks', 'AKS Distributions')
 ON DUPLICATE KEY UPDATE display_name = VALUES(display_name);
@@ -132,8 +130,6 @@ CREATE TABLE IF NOT EXISTS aks_items (
   FULLTEXT INDEX ft_aks_description (description)
 );
 
--- Run once in phpMyAdmin against the existing Sales Portal database.
--- Only CABAC tables are created; existing 3F and AKS rows are not changed.
 INSERT INTO price_suppliers (code, display_name)
 VALUES ('cabac', 'CABAC')
 ON DUPLICATE KEY UPDATE display_name = VALUES(display_name);
@@ -165,4 +161,40 @@ CREATE TABLE IF NOT EXISTS cabac_items (
   UNIQUE KEY uq_cabac_sheet_row (import_id, sheet_name, source_row),
   INDEX ix_cabac_import_code (import_id, item_code),
   FULLTEXT INDEX ft_cabac_description (item_description)
+);
+
+INSERT INTO price_suppliers (code, display_name)
+VALUES ('carroll', 'Carroll')
+ON DUPLICATE KEY UPDATE display_name = VALUES(display_name);
+
+CREATE TABLE IF NOT EXISTS carroll_imports (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  supplier_code VARCHAR(40) NOT NULL DEFAULT 'carroll',
+  filename VARCHAR(255) NOT NULL,
+  effective_date DATE NULL,
+  item_count INT UNSIGNED NOT NULL,
+  imported_by BIGINT UNSIGNED NULL,
+  imported_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_carroll_supplier FOREIGN KEY (supplier_code) REFERENCES price_suppliers(code),
+  CONSTRAINT fk_carroll_user FOREIGN KEY (imported_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS carroll_items (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  import_id BIGINT UNSIGNED NOT NULL,
+  part_number VARCHAR(100) NOT NULL,
+  description TEXT NOT NULL,
+  per_pack_list_price DECIMAL(18,4) NOT NULL,
+  quantity_per_pack DECIMAL(18,4) NOT NULL,
+  per_pack_net_price DECIMAL(18,4) NOT NULL,
+  discount_percent DECIMAL(7,3) NOT NULL,
+  category_discount_code VARCHAR(80) NOT NULL,
+  category_product VARCHAR(255) NOT NULL,
+  sheet_name VARCHAR(128) NOT NULL,
+  source_row INT UNSIGNED NOT NULL,
+  CONSTRAINT fk_carroll_item_import FOREIGN KEY (import_id) REFERENCES carroll_imports(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_carroll_source_row (import_id, sheet_name, source_row),
+  INDEX ix_carroll_part_number (import_id, part_number),
+  INDEX ix_carroll_product_category (import_id, category_product),
+  FULLTEXT INDEX ft_carroll_description (description)
 );

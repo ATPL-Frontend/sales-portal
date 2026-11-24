@@ -29,7 +29,8 @@ const adminLinks: NavItem[] = [
 const pageNames: Record<string, string> = {
   "/price-list/3f": "3F Cable Prices",
   "/price-list/aks": "AKS Cable Prices",
-  '/price-list/cabac': 'CABAC Price List',
+  "/price-list/cabac": "CABAC Price List",
+  '/price-list/carroll': 'Carroll Price List',
   "/": "Overview",
   "/users": "Team members",
   "/roles": "Roles & access",
@@ -140,7 +141,15 @@ export function AppShell() {
                     <NavItemLink
                       item={{
                         to: "/price-list/cabac",
-                        label: "CABAC",
+                        label: "Cabac",
+                        icon: ChevronRight,
+                      }}
+                      onNavigate={closeMenu}
+                    />
+                    <NavItemLink
+                      item={{
+                        to: "/price-list/carroll",
+                        label: "Carroll",
                         icon: ChevronRight,
                       }}
                       onNavigate={closeMenu}

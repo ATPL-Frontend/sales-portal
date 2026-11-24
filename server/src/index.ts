@@ -17,6 +17,7 @@ import { authRouter } from "./routes/auth.js";
 import { priceRouter } from "./features/price/routes.js";
 import { aksRouter } from "./features/prices/aks/routes.js";
 import { cabacRouter } from './features/prices/cabac/routes.js';
+import { carrollRouter } from './features/prices/carroll/routes.js';
 
 const app = express();
 
@@ -71,6 +72,9 @@ api.use('/price-lists/cabac', cabacRouter);
 
 // 3F price list
 api.use("/price-lists", priceRouter);
+
+// Carroll price list
+api.use("/price-lists/carroll", carrollRouter);
 
 // API 404 handler
 api.use((_req, _res, next) => {

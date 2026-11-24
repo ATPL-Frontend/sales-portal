@@ -16,6 +16,7 @@ import { UsersPage } from "../features/team/UsersPage";
 import { ThreeFPricePage } from "../features/prices/3f/ThreeFPricePage";
 import { AksPricePage } from "../features/prices/aks/AksPricePage";
 import { CabacPricePage } from '../features/prices/cabac/CabacPricePage';
+import { CarrollPricePage } from '../features/prices/carroll/CarrollPricePage';
 import { ProfilePage } from "../features/account/ProfilePage";
 import { AuthLoader } from "../components/ui/AuthLoader";
 
@@ -74,6 +75,7 @@ function AppRoutes() {
             <Route path="/price-list/3f" element={<ThreeFPricePage />} />
             <Route path="/price-list/aks" element={<AksPricePage />} />
             <Route path="/price-list/cabac" element={<CabacPricePage />} />
+            <Route path="/price-list/carroll" element={<CarrollPricePage />} />
           </Route>
           <Route element={<RequireSuperAdmin />}>
             <Route path="/users" element={<UsersPage />} />
